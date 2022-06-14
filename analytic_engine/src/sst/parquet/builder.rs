@@ -226,13 +226,6 @@ fn build_write_properties(
         .build())
 }
 
-fn to_hybrid_record_batch(arrow_record_batch_vec: Vec<ArrowRecordBatch>) -> ArrowRecordBatch {
-    let arrow_schema = arrow_record_batch_vec[0].schema();
-    let tsid_idx = arrow_schema.index_of("tsid").unwrap();
-    let timestamp_idx = arrow_schema.index_of("timestamp").unwrap();
-    todo!();
-}
-
 /// Encode the record batch with [ArrowWriter] and the encoded contents is
 /// written to the [EncodingBuffer].
 // TODO(xikai): too many parameters
@@ -248,7 +241,7 @@ fn encode_record_batch(
         return Ok(0);
     }
 
-    let record_batch = to_hybrid_record_batch(arrow_record_batch_vec);
+    let record_batch = super::hybrid::to_hybrid_record_batch(arrow_record_batch_vec)?;
     let arrow_schema = record_batch.schema();
 
     // create arrow writer if not exist
