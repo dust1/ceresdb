@@ -65,12 +65,15 @@ fn build_engine_runtimes(config: &RuntimeConfig) -> EngineRuntimes {
 
 /// Run a server, returns when the server is shutdown by user
 pub fn run_server(config: Config) {
+    // 创建运行时(runtime),运行时类似于一组线程池用于执行异步任务
+    // 这里讲线程池分为4种类型,分别是读、写、元数据、后台执行
     let runtimes = Arc::new(build_engine_runtimes(&config.runtime));
     let engine_runtimes = runtimes.clone();
 
     info!("Server starts up, config:{:#?}", config);
 
     runtimes.bg_runtime.block_on(async {
+        // 根据配置采用不同的可插拔引擎(Pluggable Table Engine)
         if config.analytic.obkv_wal.enable {
             run_server_with_runtimes::<ReplicatedEngineBuilder>(config, engine_runtimes).await;
         } else {
@@ -85,10 +88,12 @@ where
 {
     // Build all table engine
     // Create memory engine
+    // 创建内存引擎,内存表引擎有专门的引擎
     let memory = MemoryTableEngine;
-    // Create analytic engine
+    // Create analytic engine, 创建存储引擎(大概)
     let analytic_config = config.analytic.clone();
     let analytic_engine_builder = T::default();
+    // 根据引擎配置以及运行时对象创建引擎
     let analytic = analytic_engine_builder
         .build(analytic_config, runtimes.clone())
         .await
@@ -96,13 +101,14 @@ where
             panic!("Failed to setup analytic engine, err:{}", e);
         });
 
-    // Create table engine proxy
+    // Create table engine proxy, 创建table engine代理
     let engine_proxy = Arc::new(TableEngineProxy {
         memory,
         analytic: analytic.clone(),
     });
 
     // Create catalog manager, use analytic table as backend
+    // 创建catalog管理器,catalog管理元数据信息
     let catalog_manager = CatalogManagerImpl::new(
         TableBasedManager::new(analytic, engine_proxy.clone())
             .await
@@ -112,6 +118,7 @@ where
     );
 
     // Init function registry.
+    // 函数注册 
     let mut function_registry = FunctionRegistryImpl::new();
     function_registry.load_functions().unwrap_or_else(|e| {
         panic!("Failed to create function registry, err:{}", e);
@@ -119,6 +126,7 @@ where
     let function_registry = Arc::new(function_registry);
 
     // Create query executor
+    // 创建查询执行器
     let query_executor = ExecutorImpl::new();
 
     // Build and start server

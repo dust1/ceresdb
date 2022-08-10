@@ -75,6 +75,7 @@ pub enum Error {
 define_result!(Error);
 
 /// Table based catalog manager
+/// 表的基础元数据管理
 #[derive(Clone)]
 pub struct TableBasedManager {
     inner: Arc<Inner>,
@@ -110,6 +111,7 @@ impl TableBasedManager {
     pub async fn new(backend: TableEngineRef, engine_proxy: TableEngineRef) -> Result<Self> {
         // Create or open sys_catalog table, will also create a space (catalog + schema)
         // for system catalog.
+        // 创建或打开sys_catalog表，也会为系统目录创建一个空间(catalog + schema)
         let catalog_table = SysCatalogTable::new(backend)
             .await
             .context(BuildSysCatalog)?;
@@ -137,6 +139,7 @@ impl TableBasedManager {
 type CatalogMap = HashMap<String, Arc<CatalogImpl>>;
 
 /// Inner state of TableBasedManager
+/// 结构的内部状态
 struct Inner {
     /// Sys catalog table
     catalog_table: Arc<SysCatalogTable>,
