@@ -51,6 +51,7 @@ pub enum Error {
 define_result!(Error);
 
 /// MetaProvider provides meta info needed by Frontend
+/// 元数据信息
 pub trait MetaProvider {
     /// Default catalog name
     fn default_catalog_name(&self) -> &str;

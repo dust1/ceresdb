@@ -405,6 +405,7 @@ impl<'a, P: MetaProvider> PlannerDelegate<'a, P> {
                 source,
                 ..
             } => {
+                // 获取插入表的Table引用
                 let table = self.find_table(ObjectName(table_name.0).into())?;
 
                 let schema = table.schema();

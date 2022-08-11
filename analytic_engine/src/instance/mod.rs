@@ -139,34 +139,46 @@ impl SpaceStore {
 }
 
 /// Table engine instance
+/// 表引擎实例
 ///
+/// 管理所有空间，还包含跨所有表共享的所需资源
 /// Manages all spaces, also contains needed resources shared across all table
 // TODO(yingwen): Track memory usage of all tables (or tables of space)
+// 跟踪所有表的内存使用情况
 pub struct Instance {
     /// Space storage
+    /// 存储空间
     space_store: Arc<SpaceStore>,
     /// Runtime to execute async tasks.
+    /// 运行时
     runtimes: Arc<EngineRuntimes>,
     /// Global table options, overwrite mutable options in each table's
     /// TableOptions.
+    /// 全局表选项，覆盖每个表的TableOptions中可变选项
     table_opts: TableOptions,
 
     // Write group options:
+    // 写入选项
     write_group_worker_num: usize,
     write_group_command_channel_cap: usize,
     // End of write group options.
     compaction_scheduler: CompactionSchedulerRef,
     file_purger: FilePurger,
 
+    // 内存与数据的缓存
     meta_cache: Option<MetaCacheRef>,
     data_cache: Option<DataCacheRef>,
     /// Engine memtable memory usage collector
+    /// memtable引擎内存使用收集器
     mem_usage_collector: Arc<MemUsageCollector>,
     /// Engine write buffer size
+    /// 引擎写入的buffer大小
     pub(crate) db_write_buffer_size: usize,
     /// Space write buffer size
+    /// 写入空间缓存大小
     pub(crate) space_write_buffer_size: usize,
     /// replay wal batch size
+    /// replay wal 的batch大小
     pub(crate) replay_batch_size: usize,
 }
 

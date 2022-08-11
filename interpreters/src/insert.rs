@@ -40,7 +40,9 @@ impl InsertInterpreter {
 impl Interpreter for InsertInterpreter {
     async fn execute(mut self: Box<Self>) -> Result<Output> {
         // Generate tsid if needed.
+        // 生成tsid
         self.maybe_generate_tsid()?;
+        // 从逻辑计划中获取要操作的表的对象以及数据
         let InsertPlan { table, rows } = self.plan;
 
         // Context is unused now
@@ -48,6 +50,7 @@ impl Interpreter for InsertInterpreter {
 
         let request = WriteRequest { row_group: rows };
 
+        // 实际的写入在对应的table中进行
         let num_rows = table
             .write(request)
             .await

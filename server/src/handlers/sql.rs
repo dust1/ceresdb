@@ -107,6 +107,8 @@ pub async fn handle_sql<C: CatalogManager + 'static, Q: QueryExecutor + 'static>
     );
 
     // We use tenant as schema
+    // 使用租户作为架构
+    // 元数据管理
     // TODO(yingwen): Privilege check, cannot access data of other tenant
     // TODO(yingwen): Maybe move MetaProvider to instance
     let provider = CatalogMetaProvider {
@@ -138,7 +140,7 @@ pub async fn handle_sql<C: CatalogManager + 'static, Q: QueryExecutor + 'static>
         }
     );
 
-    // Create logical plan
+    // Create logical plan 创建逻辑计划
     // Note: Remember to store sql in error when creating logical plan
     let plan = frontend
         .statement_to_plan(&mut sql_ctx, stmts.remove(0))
@@ -156,6 +158,7 @@ pub async fn handle_sql<C: CatalogManager + 'static, Q: QueryExecutor + 'static>
         instance.catalog_manager.clone(),
         instance.table_engine.clone(),
     );
+    // 根据逻辑计划创建解释器，计划会被特定解释器执行
     let interpreter = interpreter_factory.create(interpreter_ctx, plan);
 
     let output = interpreter.execute().await.context(InterpreterExec {
